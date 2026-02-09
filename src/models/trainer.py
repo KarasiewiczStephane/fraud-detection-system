@@ -9,8 +9,14 @@ from typing import Any, Dict, List, Optional, Type
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import (
+    f1_score,
+    precision_recall_curve,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 from xgboost import XGBClassifier
 
 from src.utils.logger import get_logger
@@ -229,6 +235,113 @@ class ModelTrainer:
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Return probability estimates for each class."""
         return self.model.predict_proba(X)
+
+    # ------------------------------------------------------------------
+    # Hyperparameter optimization (Optuna)
+    # ------------------------------------------------------------------
+
+    def optimize_hyperparameters(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        n_trials: int = 20,
+    ) -> Dict[str, Any]:
+        """Search for the best hyperparameters using Optuna.
+
+        Parameters
+        ----------
+        X:
+            Feature matrix.
+        y:
+            Binary label array.
+        n_trials:
+            Number of Optuna trials to run.
+
+        Returns
+        -------
+        dict
+            Best hyperparameters found during the study.
+        """
+        import optuna
+
+        optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+        def objective(trial: optuna.Trial) -> float:
+            params = self._suggest_params(trial)
+            model = self._build_model(params)
+            scores = cross_val_score(model, X, y, cv=3, scoring="f1")
+            return float(scores.mean())
+
+        study = optuna.create_study(direction="maximize")
+        study.optimize(objective, n_trials=n_trials)
+
+        best = study.best_params
+        logger.info(
+            "Optuna optimization complete (%d trials): best F1=%.4f, params=%s",
+            n_trials,
+            study.best_value,
+            best,
+        )
+        return best
+
+    def _suggest_params(self, trial) -> Dict[str, Any]:
+        """Return trial-suggested hyperparameters for the current model type."""
+        if self.model_type == "xgboost":
+            return {
+                "n_estimators": trial.suggest_int("n_estimators", 50, 300),
+                "max_depth": trial.suggest_int("max_depth", 3, 10),
+                "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3),
+                "subsample": trial.suggest_float("subsample", 0.6, 1.0),
+                "colsample_bytree": trial.suggest_float("colsample_bytree", 0.6, 1.0),
+            }
+        if self.model_type == "random_forest":
+            return {
+                "n_estimators": trial.suggest_int("n_estimators", 50, 300),
+                "max_depth": trial.suggest_int("max_depth", 3, 20),
+                "min_samples_split": trial.suggest_int("min_samples_split", 2, 10),
+                "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
+            }
+        if self.model_type == "logistic_regression":
+            return {
+                "C": trial.suggest_float("C", 0.01, 10.0, log=True),
+                "max_iter": 1000,
+            }
+        raise ValueError(f"No search space defined for {self.model_type!r}")
+
+    # ------------------------------------------------------------------
+    # Threshold optimization
+    # ------------------------------------------------------------------
+
+    def optimize_threshold(self, X: np.ndarray, y: np.ndarray) -> float:
+        """Find the classification threshold that maximises recall at precision >= 0.5.
+
+        The model must already be trained before calling this method.
+
+        Parameters
+        ----------
+        X:
+            Feature matrix (validation set).
+        y:
+            True binary labels (validation set).
+
+        Returns
+        -------
+        float
+            Optimal threshold in ``[0, 1]``.
+        """
+        y_proba = self.model.predict_proba(X)[:, 1]
+        precision, recall, thresholds = precision_recall_curve(y, y_proba)
+
+        # Find threshold where precision >= 0.5 and recall is maximized
+        valid_idx = precision[:-1] >= 0.5
+        if valid_idx.any():
+            best_idx = np.argmax(recall[:-1][valid_idx])
+            threshold = float(thresholds[valid_idx][best_idx])
+        else:
+            threshold = 0.5
+
+        logger.info("Optimized threshold: %.4f", threshold)
+        return threshold
 
     # ------------------------------------------------------------------
     # Internal
