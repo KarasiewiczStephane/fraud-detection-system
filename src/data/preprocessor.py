@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-from typing import List
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from sklearn.utils.class_weight import compute_class_weight
 
 from src.utils.logger import get_logger
 
@@ -209,3 +210,91 @@ class FeatureEngineer:
             len(df.columns),
         )
         return df
+
+
+# ------------------------------------------------------------------
+# Temporal train / test split
+# ------------------------------------------------------------------
+
+
+def temporal_split(
+    df: pd.DataFrame, test_ratio: float = 0.2
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split a dataframe temporally so the training set precedes the test set.
+
+    The dataframe is sorted by ``Time`` and split at the
+    ``(1 - test_ratio)`` percentile of the ``Time`` column.  This
+    guarantees no future data leaks into the training set.
+
+    Parameters
+    ----------
+    df:
+        DataFrame that must contain a ``Time`` column.
+    test_ratio:
+        Fraction of data (by time) to allocate to the test set.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame]
+        ``(train_df, test_df)`` — disjoint, temporally ordered.
+    """
+    df = df.sort_values("Time").reset_index(drop=True)
+    split_time = np.percentile(df["Time"], (1 - test_ratio) * 100)
+    train_df = df[df["Time"] <= split_time].reset_index(drop=True)
+    test_df = df[df["Time"] > split_time].reset_index(drop=True)
+    logger.info(
+        "Temporal split: %d train, %d test (split at Time=%.1f)",
+        len(train_df),
+        len(test_df),
+        split_time,
+    )
+    return train_df, test_df
+
+
+# ------------------------------------------------------------------
+# Class balancing
+# ------------------------------------------------------------------
+
+
+def balance_classes(
+    X: np.ndarray,
+    y: np.ndarray,
+    strategy: str = "smote",
+) -> Union[Tuple[np.ndarray, np.ndarray], Dict[int, float]]:
+    """Handle class imbalance via SMOTE resampling or class-weight computation.
+
+    Parameters
+    ----------
+    X:
+        Feature matrix of shape ``(n_samples, n_features)``.
+    y:
+        Binary label array of shape ``(n_samples,)``.
+    strategy:
+        ``"smote"`` — returns ``(X_resampled, y_resampled)``
+        ``"class_weight"`` — returns a ``{class: weight}`` dict.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray] | dict[int, float]
+    """
+    if strategy == "smote":
+        from imblearn.over_sampling import SMOTE
+
+        smote = SMOTE(random_state=42)
+        X_res, y_res = smote.fit_resample(X, y)
+        logger.info(
+            "SMOTE resampling: %d → %d samples (class 0: %d, class 1: %d)",
+            len(y),
+            len(y_res),
+            int((y_res == 0).sum()),
+            int((y_res == 1).sum()),
+        )
+        return X_res, y_res
+
+    if strategy == "class_weight":
+        weights = compute_class_weight("balanced", classes=np.array([0, 1]), y=y)
+        weight_dict = {0: float(weights[0]), 1: float(weights[1])}
+        logger.info("Computed class weights: %s", weight_dict)
+        return weight_dict
+
+    raise ValueError(f"Unknown balancing strategy: {strategy!r}")
