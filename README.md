@@ -1,5 +1,8 @@
 # fraud-detection-system
 
+![CI](https://github.com/YOUR_USERNAME/fraud-detection-system/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://codecov.io/gh/YOUR_USERNAME/fraud-detection-system/branch/main/graph/badge.svg)
+
 > Part of my Data Science Portfolio — [Skaraz Data](https://github.com/YOUR_USERNAME)
 
 ## Overview
