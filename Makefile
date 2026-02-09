@@ -1,4 +1,4 @@
-.PHONY: install test lint clean run docker
+.PHONY: install test lint clean run docker docker-up docker-down docker-logs
 
 install:
 	pip install -r requirements.txt
@@ -15,8 +15,16 @@ clean:
 	find . -type f -name "*.pyc" -delete
 
 run:
-	python -m src.main
+	uvicorn src.api.app:app --host 0.0.0.0 --port 8000
 
 docker:
-	docker build -t $(shell basename $(CURDIR)) .
-	docker run -p 8000:8000 $(shell basename $(CURDIR))
+	docker build -t fraud-detection-api .
+
+docker-up:
+	docker-compose up --build -d
+
+docker-down:
+	docker-compose down
+
+docker-logs:
+	docker-compose logs -f

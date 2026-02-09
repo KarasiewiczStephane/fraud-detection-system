@@ -9,15 +9,18 @@ optuna>=3.4
 
 # Explainability
 shap>=0.43
+matplotlib>=3.7
 
 # API
 fastapi>=0.104
 uvicorn>=0.24
 pydantic>=2.5
+httpx>=0.25
 
 # Dashboard
 streamlit>=1.28
 plotly>=5.18
+streamlit-autorefresh>=1.0
 
 # Data
 pandas>=2.1
@@ -26,6 +29,9 @@ pyarrow>=14.0
 
 # Database
 aiosqlite>=0.19
+
+# Statistics
+scipy>=1.11
 
 # Utilities
 pyyaml>=6.0
