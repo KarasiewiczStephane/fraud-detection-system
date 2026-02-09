@@ -9,6 +9,7 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, Request, Response
 
+from src.api.routes.ab_test import router as ab_test_router
 from src.api.routes.predict import router as predict_router
 from src.api.schemas import HealthResponse
 from src.utils.database import DatabaseManager
@@ -25,6 +26,7 @@ class AppState:
     model_version: str = "unknown"
     threshold: float = 0.5
     db: Optional[DatabaseManager] = None
+    ab_router: Any = None
 
 
 # Module-level state — set during lifespan
@@ -84,6 +86,7 @@ async def timing_middleware(request: Request, call_next) -> Response:
 # ── Routers ────────────────────────────────────────────────────────
 
 app.include_router(predict_router, prefix="/api/v1")
+app.include_router(ab_test_router, prefix="/api/v1")
 
 # ── Root endpoints ─────────────────────────────────────────────────
 

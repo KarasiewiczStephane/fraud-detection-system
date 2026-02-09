@@ -1,0 +1,5 @@
+enabled: true
+model_a: xgboost_v1
+model_b: xgboost_v2
+split_ratio: 0.5
+min_samples_for_significance: 1000
