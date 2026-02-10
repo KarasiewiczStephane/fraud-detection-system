@@ -304,6 +304,6 @@ class TestMarkdownCodeBlocks:
     def test_fenced_blocks_balanced(self, md_content):
         content, name = md_content
         count = content.count("```")
-        assert (
-            count % 2 == 0
-        ), f"{name}: unbalanced fenced code blocks ({count} backtick fences)"
+        assert count % 2 == 0, (
+            f"{name}: unbalanced fenced code blocks ({count} backtick fences)"
+        )

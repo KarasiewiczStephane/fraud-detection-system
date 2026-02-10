@@ -375,9 +375,9 @@ class TestFitTransform:
         new_cols = set(result.columns) - set(small_df.columns)
         valid_prefixes = ("vel_", "amt_", "time_", "dev_")
         for col in new_cols:
-            assert any(
-                col.startswith(p) for p in valid_prefixes
-            ), f"Column '{col}' doesn't follow naming convention"
+            assert any(col.startswith(p) for p in valid_prefixes), (
+                f"Column '{col}' doesn't follow naming convention"
+            )
 
     def test_single_row_no_error(self, fe):
         """Pipeline should handle a single-row dataframe gracefully."""
