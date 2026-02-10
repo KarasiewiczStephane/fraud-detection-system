@@ -163,7 +163,10 @@ class TestDockerJob:
 
     def test_docker_compose_config(self, job):
         run_steps = [s.get("run", "") for s in job["steps"] if "run" in s]
-        assert any("docker-compose config" in r for r in run_steps)
+        assert any(
+            "docker compose config" in r or "docker-compose config" in r
+            for r in run_steps
+        )
 
 
 # ------------------------------------------------------------------
