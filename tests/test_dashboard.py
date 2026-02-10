@@ -471,29 +471,29 @@ class TestDashboardFiles:
     def test_overview_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/overview.py").exists()
+        assert Path("src/dashboard/_pages/overview.py").exists()
 
     def test_realtime_feed_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/realtime_feed.py").exists()
+        assert Path("src/dashboard/_pages/realtime_feed.py").exists()
 
     def test_performance_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/performance.py").exists()
+        assert Path("src/dashboard/_pages/performance.py").exists()
 
     def test_ab_test_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/ab_test.py").exists()
+        assert Path("src/dashboard/_pages/ab_test.py").exists()
 
     def test_feature_importance_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/feature_importance.py").exists()
+        assert Path("src/dashboard/_pages/feature_importance.py").exists()
 
     def test_alerts_page_exists(self):
         from pathlib import Path
 
-        assert Path("src/dashboard/pages/alerts.py").exists()
+        assert Path("src/dashboard/_pages/alerts.py").exists()

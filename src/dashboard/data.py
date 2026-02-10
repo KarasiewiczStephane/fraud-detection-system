@@ -22,7 +22,7 @@ import pandas as pd
 
 def get_connection(db_path: str | Path = "data/predictions.db") -> sqlite3.Connection:
     """Return a ``sqlite3.Connection`` with row-factory enabled."""
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -218,8 +218,8 @@ def filter_by_date_range(
     """Filter a DataFrame to rows where ``col`` falls in ``[start, end]``."""
     if df.empty or col not in df.columns:
         return df
-    ts = pd.to_datetime(df[col])
-    mask = (ts >= pd.Timestamp(start)) & (ts <= pd.Timestamp(end))
+    ts = pd.to_datetime(df[col], utc=True)
+    mask = (ts >= pd.Timestamp(start, tz="UTC")) & (ts <= pd.Timestamp(end, tz="UTC"))
     return df.loc[mask].reset_index(drop=True)
 
 

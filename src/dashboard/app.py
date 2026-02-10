@@ -2,10 +2,20 @@
 
 from __future__ import annotations
 
-import streamlit as st
-from streamlit_autorefresh import st_autorefresh
+import sqlite3
+import sys
+from pathlib import Path
 
-from src.dashboard.data import get_connection
+# Ensure project root is on sys.path so `src.*` imports work when
+# Streamlit is launched directly (e.g. `streamlit run src/dashboard/app.py`).
+_project_root = str(Path(__file__).resolve().parent.parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+import streamlit as st  # noqa: E402
+from streamlit_autorefresh import st_autorefresh  # noqa: E402
+
+from src.dashboard.data import get_connection  # noqa: E402
 
 # ------------------------------------------------------------------
 # Page config (must be first Streamlit call)
@@ -32,42 +42,41 @@ PAGES = [
 page = st.sidebar.selectbox("Page", PAGES)
 
 # ------------------------------------------------------------------
-# Database connection (cached)
+# Database connection — fresh per run to avoid cross-thread errors
 # ------------------------------------------------------------------
 
 
-@st.cache_resource
-def _db_connection():
+def _get_conn() -> sqlite3.Connection:
     return get_connection()
 
 
-conn = _db_connection()
+conn = _get_conn()
 
 # ------------------------------------------------------------------
 # Route to selected page
 # ------------------------------------------------------------------
 
 if page == "Overview":
-    from src.dashboard.pages.overview import render
+    from src.dashboard._pages.overview import render
 
     render(conn)
 elif page == "Real-time Feed":
-    from src.dashboard.pages.realtime_feed import render
+    from src.dashboard._pages.realtime_feed import render
 
     render(conn)
 elif page == "Model Performance":
-    from src.dashboard.pages.performance import render
+    from src.dashboard._pages.performance import render
 
     render(conn)
 elif page == "A/B Test Results":
-    from src.dashboard.pages.ab_test import render
+    from src.dashboard._pages.ab_test import render
 
     render(conn)
 elif page == "Feature Importance":
-    from src.dashboard.pages.feature_importance import render
+    from src.dashboard._pages.feature_importance import render
 
     render(conn)
 elif page == "Alert Log":
-    from src.dashboard.pages.alerts import render
+    from src.dashboard._pages.alerts import render
 
     render(conn)

@@ -52,13 +52,36 @@ def render(conn: sqlite3.Connection) -> None:
     for r in rows:
         if r[0] == selected:
             sv = json.loads(r[1]) if isinstance(r[1], str) else r[1]
-            if isinstance(sv, dict):
-                import pandas as pd
 
+            import pandas as pd
+
+            # Handle LocalExplanation format (contributions list)
+            if isinstance(sv, dict) and "contributions" in sv:
+                contributions = sv["contributions"]
+                sv_df = pd.DataFrame(contributions)
+                sv_df = sv_df.rename(
+                    columns={"contribution": "SHAP Value", "feature": "Feature"}
+                )
+                sv_df["abs_shap"] = sv_df["SHAP Value"].abs()
+                sv_df = sv_df.sort_values("abs_shap", ascending=False).drop(
+                    columns=["abs_shap"]
+                )
+                fig = px.bar(
+                    sv_df.head(15),
+                    x="SHAP Value",
+                    y="Feature",
+                    orientation="h",
+                    title=f"Top SHAP Values — {selected}",
+                )
+                st.plotly_chart(fig, use_container_width=True)
+            elif isinstance(sv, dict):
                 sv_df = pd.DataFrame(
                     list(sv.items()), columns=["Feature", "SHAP Value"]
                 )
-                sv_df = sv_df.sort_values("SHAP Value", key=abs, ascending=False)
+                sv_df["abs_shap"] = sv_df["SHAP Value"].abs()
+                sv_df = sv_df.sort_values("abs_shap", ascending=False).drop(
+                    columns=["abs_shap"]
+                )
                 fig = px.bar(
                     sv_df.head(15),
                     x="SHAP Value",

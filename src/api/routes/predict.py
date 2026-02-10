@@ -53,12 +53,47 @@ async def predict_single(
     from src.api.app import get_state
 
     state = get_state()
-    result = _make_prediction(
-        transaction,
-        state.model,
-        state.threshold,
-        state.model_version,
-    )
+
+    # Route through A/B router when available
+    if state.ab_router is not None:
+        x = _transaction_to_array(transaction)
+        variant, ab_pred, latency_ms = state.ab_router.predict(
+            transaction_id=transaction.transaction_id,
+            features=x,
+        )
+        # Use the A/B router's chosen model for the result
+        model = state.ab_router.models[variant]
+        threshold = state.ab_router.thresholds[variant]
+        model_version = f"{state.model_version}_{variant}"
+
+        result = _make_prediction(transaction, model, threshold, model_version)
+
+        # Log A/B result to database
+        await state.db.insert_ab_result(
+            model_name=f"model_{variant}",
+            transaction_id=transaction.transaction_id,
+            prediction=ab_pred,
+            actual=None,
+            latency_ms=latency_ms,
+        )
+    else:
+        result = _make_prediction(
+            transaction,
+            state.model,
+            state.threshold,
+            state.model_version,
+        )
+
+    # Compute SHAP explanation if requested
+    shap_dict = None
+    if include_explanation and state.explainer is not None:
+        try:
+            x = _transaction_to_array(transaction)
+            explanation = state.explainer.local_explanation(x, _FEATURE_COLS)
+            shap_dict = explanation.to_dict()
+            result.explanation = shap_dict
+        except Exception as exc:
+            logger.warning("SHAP explanation failed: %s", exc)
 
     # Log to database
     await state.db.insert_prediction(
@@ -67,6 +102,7 @@ async def predict_single(
         prediction=int(result.is_fraud),
         confidence=result.confidence,
         model_version=result.model_version,
+        shap_values=shap_dict,
     )
 
     return result

@@ -4,11 +4,18 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 from pathlib import Path
 
-from src.streaming.consumer import StreamConsumer
-from src.streaming.simulator import TransactionSimulator
-from src.utils.logger import get_logger
+# Ensure project root is on sys.path so `src.*` imports resolve
+# when run directly (e.g. `python src/streaming/run_simulator.py`).
+_project_root = str(Path(__file__).resolve().parent.parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from src.streaming.consumer import StreamConsumer  # noqa: E402
+from src.streaming.simulator import TransactionSimulator  # noqa: E402
+from src.utils.logger import get_logger  # noqa: E402
 
 logger = get_logger(__name__)
 

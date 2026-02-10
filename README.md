@@ -64,7 +64,7 @@ For a detailed breakdown see [docs/architecture.md](docs/architecture.md).
 
 ## Quick Start
 
-### Local Development
+### Installation
 
 ```bash
 # Clone
@@ -77,22 +77,61 @@ pyenv local 3.11
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Run the API server
-make run
-# => http://localhost:8000
-
-# Run tests
-make test
-
-# Lint
-make lint
 ```
 
-### Docker Compose
+### Running the Full System (3 terminals)
+
+The system has three components that work together. On first start the API
+auto-trains a RandomForest on the sample dataset so everything works out of
+the box — no manual training step required.
+
+**Terminal 1 — API server:**
 
 ```bash
-# Build and start all services
+uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+```
+
+The API starts at [http://localhost:8000](http://localhost:8000). It loads (or
+trains) a model, initialises the SQLite database, sets up the SHAP explainer,
+and enables A/B testing.
+
+**Terminal 2 — Transaction simulator:**
+
+```bash
+python -m src.streaming.run_simulator
+```
+
+Continuously sends transactions from the sample dataset to the API at ~10/sec.
+Each prediction is logged to SQLite so the dashboard has data to display.
+Configure with environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `API_URL` | `http://localhost:8000` | API base URL |
+| `STREAM_RATE` | `10` | Transactions per second |
+| `DATA_PATH` | `data/sample/sample_transactions.csv` | Source data |
+
+**Terminal 3 — Monitoring dashboard:**
+
+```bash
+streamlit run src/dashboard/app.py
+```
+
+Opens at [http://localhost:8501](http://localhost:8501) with six pages:
+
+| Page | What it shows |
+|---|---|
+| Overview | Transaction counts (1h/24h/7d), fraud count, fraud rate |
+| Real-time Feed | Latest 50 predictions with colour-coded fraud probability |
+| Model Performance | Fraud rate over time, prediction distribution, date filter |
+| A/B Test Results | Side-by-side model comparison, significance indicator |
+| Feature Importance | SHAP summary and per-prediction feature attributions |
+| Alert Log | High-confidence fraud alerts with CSV download |
+
+### Running with Docker Compose
+
+```bash
+# Build and start all three services
 make docker-up
 
 # API:       http://localhost:8000
@@ -103,6 +142,14 @@ make docker-logs
 
 # Stop
 make docker-down
+```
+
+### Tests and Linting
+
+```bash
+make test          # Run all 623 tests
+make lint          # Ruff check + format
+pre-commit run -a  # Lint + format + tests
 ```
 
 ## API Examples
@@ -116,7 +163,7 @@ curl http://localhost:8000/health
 ```json
 {
   "status": "healthy",
-  "model_version": "xgboost_v1"
+  "model_version": "rf_default"
 }
 ```
 
@@ -145,12 +192,36 @@ curl -X POST http://localhost:8000/api/v1/predict \
   "fraud_probability": 0.023,
   "is_fraud": false,
   "confidence": 0.977,
-  "model_version": "xgboost_v1",
+  "model_version": "rf_default",
   "explanation": null
 }
 ```
 
-### Batch Prediction
+### Prediction with SHAP Explanation
+
+Add `?include_explanation=true` to get per-feature SHAP attributions:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/predict?include_explanation=true" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction_id": "txn_002",
+    "Time": 0.0,
+    "V1": -1.36, "V2": -0.07, "V3": 2.54, "V4": 1.38,
+    "V5": -0.34, "V6": -0.47, "V7": 0.24, "V8": 0.10,
+    "V9": 0.36, "V10": 0.09, "V11": -0.55, "V12": -0.62,
+    "V13": -0.99, "V14": -0.31, "V15": 1.47, "V16": -0.47,
+    "V17": 0.21, "V18": 0.03, "V19": 0.40, "V20": 0.25,
+    "V21": -0.02, "V22": -0.39, "V23": -0.11, "V24": -0.22,
+    "V25": -0.64, "V26": 0.72, "V27": -0.22, "V28": 0.03,
+    "Amount": 149.62
+  }'
+```
+
+The `explanation` field will contain `base_value`, `prediction`, and ranked
+`contributions` showing each feature's impact on the fraud score.
+
+### Batch Prediction (up to 100 transactions)
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/predict/batch \
@@ -162,6 +233,14 @@ curl -X POST http://localhost:8000/api/v1/predict/batch \
 
 ```bash
 curl http://localhost:8000/api/v1/ab-test/results
+```
+
+### Run the Demo Script
+
+A ready-made script exercises all endpoints:
+
+```bash
+bash scripts/demo_api.sh
 ```
 
 For full API documentation see [docs/api_reference.md](docs/api_reference.md).
