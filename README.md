@@ -1,9 +1,9 @@
 # Fraud Detection System
 
-![CI](https://github.com/YOUR_USERNAME/fraud-detection-system/actions/workflows/ci.yml/badge.svg)
-![Coverage](https://codecov.io/gh/YOUR_USERNAME/fraud-detection-system/branch/main/graph/badge.svg)
+![CI](https://github.com/KarasiewiczStephane/fraud-detection-system/actions/workflows/ci.yml/badge.svg?branch=master)
+![Coverage](https://codecov.io/gh/KarasiewiczStephane/fraud-detection-system/branch/master/graph/badge.svg)
 
-> Part of my Data Science Portfolio — [Skaraz Data](https://github.com/YOUR_USERNAME)
+> Part of my Data Science Portfolio — [Skaraz Data](https://github.com/KarasiewiczStephane)
 
 ## Overview
 
@@ -41,10 +41,10 @@ graph LR
 
     subgraph Inference
         G --> I[FastAPI]
-        I --> J[/api/v1/predict]
-        I --> K[/api/v1/predict/batch]
-        I --> L[/api/v1/ab-test/results]
-        I --> M[/health]
+        I --> J["predict"]
+        I --> K["predict/batch"]
+        I --> L["ab-test/results"]
+        I --> M["health"]
     end
 
     subgraph Streaming
@@ -68,7 +68,7 @@ For a detailed breakdown see [docs/architecture.md](docs/architecture.md).
 
 ```bash
 # Clone
-git clone git@github.com:YOUR_USERNAME/fraud-detection-system.git
+git clone git@github.com:KarasiewiczStephane/fraud-detection-system.git
 cd fraud-detection-system
 
 # Set up Python with pyenv
@@ -283,12 +283,12 @@ fraud-detection-system/
 │   ├── dashboard/          # Streamlit monitoring UI
 │   │   ├── app.py          #   Dashboard entry point
 │   │   ├── data.py         #   Sync SQLite data access
-│   │   └── pages/          #   Dashboard pages (6 views)
+│   │   └── _pages/         #   Dashboard pages (6 views)
 │   └── utils/              # Shared utilities
 │       ├── config.py       #   YAML config with env overrides
 │       ├── logger.py       #   JSON structured logging
 │       └── database.py     #   Async SQLite manager
-├── tests/                  # 567 tests (pytest)
+├── tests/                  # 623 tests (pytest)
 ├── configs/                # YAML configuration files
 ├── data/sample/            # 1000-row sample dataset for CI
 ├── docs/                   # Architecture and API docs

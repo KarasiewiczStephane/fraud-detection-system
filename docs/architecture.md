@@ -53,12 +53,12 @@ Streamlit UI with auto-refresh.
 |---|---|
 | `app.py` | Main entry point. Wide layout, 30-second auto-refresh, sidebar navigation. |
 | `data.py` | Synchronous SQLite data access layer (plain `sqlite3`, not `aiosqlite`). Provides `get_recent_predictions`, `compute_overview_metrics`, `get_ab_results`, `get_high_confidence_alerts`, date filtering, and CSV export. |
-| `pages/overview.py` | Big-number metric cards: transactions in 1h / 24h / 7d, fraud count, fraud rate. |
-| `pages/realtime_feed.py` | Latest 50 predictions with colour-coded fraud probability. |
-| `pages/performance.py` | Fraud rate over time (Plotly line chart), prediction distribution, date range filter. |
-| `pages/ab_test.py` | Side-by-side model comparison with fraud rate and latency bar charts, significance indicator. |
-| `pages/feature_importance.py` | SHAP summary plots and per-prediction feature bar charts. |
-| `pages/alerts.py` | High-confidence fraud alerts with adjustable threshold slider and CSV download. |
+| `_pages/overview.py` | Big-number metric cards: transactions in 1h / 24h / 7d, fraud count, fraud rate. |
+| `_pages/realtime_feed.py` | Latest 50 predictions with colour-coded fraud probability. |
+| `_pages/performance.py` | Fraud rate over time (Plotly line chart), prediction distribution, date range filter. |
+| `_pages/ab_test.py` | Side-by-side model comparison with fraud rate and latency bar charts, significance indicator. |
+| `_pages/feature_importance.py` | SHAP summary plots and per-prediction feature bar charts. |
+| `_pages/alerts.py` | High-confidence fraud alerts with adjustable threshold slider and CSV download. |
 
 ### Utilities (`src/utils/`)
 
