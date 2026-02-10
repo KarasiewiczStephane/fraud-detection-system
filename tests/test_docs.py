@@ -260,8 +260,7 @@ class TestDocstringCoverage:
     @pytest.fixture
     def src_modules(self):
         return sorted(
-            p for p in (ROOT / "src").rglob("*.py")
-            if p.name != "__init__.py"
+            p for p in (ROOT / "src").rglob("*.py") if p.name != "__init__.py"
         )
 
     def test_all_modules_found(self, src_modules):
@@ -296,13 +295,15 @@ class TestDocstringCoverage:
 class TestMarkdownCodeBlocks:
     """All fenced code blocks should be properly closed."""
 
-    @pytest.fixture(params=["README.md", "docs/architecture.md", "docs/api_reference.md"])
+    @pytest.fixture(
+        params=["README.md", "docs/architecture.md", "docs/api_reference.md"]
+    )
     def md_content(self, request):
         return (ROOT / request.param).read_text(), request.param
 
     def test_fenced_blocks_balanced(self, md_content):
         content, name = md_content
         count = content.count("```")
-        assert count % 2 == 0, (
-            f"{name}: unbalanced fenced code blocks ({count} backtick fences)"
-        )
+        assert (
+            count % 2 == 0
+        ), f"{name}: unbalanced fenced code blocks ({count} backtick fences)"

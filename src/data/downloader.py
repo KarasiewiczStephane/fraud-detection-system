@@ -2,12 +2,10 @@
 
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-import numpy as np
 import pandas as pd
 
 from src.utils.logger import get_logger
@@ -153,19 +151,21 @@ class DatasetDownloader:
         result.add(
             "schema_columns",
             len(missing_cols) == 0,
-            f"Missing columns: {missing_cols}" if missing_cols else "All expected columns present",
+            f"Missing columns: {missing_cols}"
+            if missing_cols
+            else "All expected columns present",
         )
 
         # 4. Column dtypes – all should be numeric
         non_numeric = [
-            col
-            for col in df.columns
-            if not pd.api.types.is_numeric_dtype(df[col])
+            col for col in df.columns if not pd.api.types.is_numeric_dtype(df[col])
         ]
         result.add(
             "column_dtypes",
             len(non_numeric) == 0,
-            f"Non-numeric columns: {non_numeric}" if non_numeric else "All columns are numeric",
+            f"Non-numeric columns: {non_numeric}"
+            if non_numeric
+            else "All columns are numeric",
         )
 
         # 5. Row count
@@ -182,7 +182,9 @@ class DatasetDownloader:
         result.add(
             "missing_values",
             total_missing == 0,
-            f"{total_missing} missing values found" if total_missing else "No missing values",
+            f"{total_missing} missing values found"
+            if total_missing
+            else "No missing values",
         )
 
         # 7. Class distribution
@@ -203,7 +205,9 @@ class DatasetDownloader:
             result.add(
                 "amount_range",
                 neg_amounts == 0,
-                f"{neg_amounts} negative Amount values" if neg_amounts else "All Amount values non-negative",
+                f"{neg_amounts} negative Amount values"
+                if neg_amounts
+                else "All Amount values non-negative",
             )
         else:
             result.add("amount_range", False, "Amount column missing")
@@ -246,7 +250,9 @@ class DatasetDownloader:
         n_fraud = max(1, round(n_rows * fraud_ratio))
         n_non_fraud = n_rows - n_fraud
 
-        sample_fraud = fraud.sample(n=min(n_fraud, len(fraud)), random_state=random_state)
+        sample_fraud = fraud.sample(
+            n=min(n_fraud, len(fraud)), random_state=random_state
+        )
         sample_non_fraud = non_fraud.sample(
             n=min(n_non_fraud, len(non_fraud)), random_state=random_state
         )
@@ -259,5 +265,7 @@ class DatasetDownloader:
 
         target = destination / "sample_transactions.csv"
         sample.to_csv(target, index=False)
-        logger.info("Sample saved to %s (%d rows, %d fraud)", target, len(sample), n_fraud)
+        logger.info(
+            "Sample saved to %s (%d rows, %d fraud)", target, len(sample), n_fraud
+        )
         return target

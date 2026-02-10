@@ -71,9 +71,9 @@ For a detailed breakdown see [docs/architecture.md](docs/architecture.md).
 git clone git@github.com:YOUR_USERNAME/fraud-detection-system.git
 cd fraud-detection-system
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# Set up Python with pyenv
+pyenv install 3.11
+pyenv local 3.11
 
 # Install dependencies
 pip install -r requirements.txt

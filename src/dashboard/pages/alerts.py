@@ -30,9 +30,7 @@ def render(conn: sqlite3.Connection) -> None:
     st.metric("Alerts", len(df))
 
     # Display table (exclude raw JSON columns for readability)
-    display_cols = [
-        c for c in df.columns if c not in ("features", "shap_values")
-    ]
+    display_cols = [c for c in df.columns if c not in ("features", "shap_values")]
     st.dataframe(df[display_cols], use_container_width=True)
 
     # CSV export

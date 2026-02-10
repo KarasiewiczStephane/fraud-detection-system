@@ -12,12 +12,13 @@ import pytest
 from src.data.downloader import (
     EXPECTED_COL_COUNT,
     EXPECTED_COLUMNS,
-    EXPECTED_FRAUD_RATE,
     DatasetDownloader,
     ValidationResult,
 )
 
-SAMPLE_PATH = Path(__file__).resolve().parents[1] / "data" / "sample" / "sample_transactions.csv"
+SAMPLE_PATH = (
+    Path(__file__).resolve().parents[1] / "data" / "sample" / "sample_transactions.csv"
+)
 
 
 # ------------------------------------------------------------------
@@ -70,7 +71,11 @@ def corrupted_null_values(tmp_path):
     """CSV with null values."""
     rng = np.random.default_rng(42)
     n = 100
-    data = {"Time": np.arange(n, dtype=float), "Amount": rng.uniform(0, 100, n), "Class": np.zeros(n, dtype=int)}
+    data = {
+        "Time": np.arange(n, dtype=float),
+        "Amount": rng.uniform(0, 100, n),
+        "Class": np.zeros(n, dtype=int),
+    }
     for i in range(1, 29):
         vals = rng.normal(0, 1, n)
         vals[0] = np.nan  # inject null
@@ -86,7 +91,11 @@ def corrupted_negative_amount(tmp_path):
     """CSV with negative Amount values."""
     rng = np.random.default_rng(42)
     n = 100
-    data = {"Time": np.arange(n, dtype=float), "Amount": rng.uniform(-100, 100, n), "Class": np.zeros(n, dtype=int)}
+    data = {
+        "Time": np.arange(n, dtype=float),
+        "Amount": rng.uniform(-100, 100, n),
+        "Class": np.zeros(n, dtype=int),
+    }
     for i in range(1, 29):
         data[f"V{i}"] = rng.normal(0, 1, n)
     df = pd.DataFrame(data)
@@ -230,7 +239,7 @@ class TestDownload:
         dest = tmp_path / "fail_test"
         dest.mkdir()
 
-        with patch.dict("sys.modules", {"kagglehub": None}):
+        with patch.dict("sys.modules", {"kagglehub": None, "requests": None}):
             with patch("src.data.downloader.logger"):
                 with pytest.raises(RuntimeError, match="Unable to download"):
                     downloader.download(dest)

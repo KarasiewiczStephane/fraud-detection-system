@@ -1,6 +1,5 @@
 """Tests for src/utils/config.py."""
 
-import os
 import textwrap
 from pathlib import Path
 
@@ -22,7 +21,8 @@ def config_file(tmp_path: Path) -> Path:
     """Write a minimal config YAML and return its path."""
     p = tmp_path / "config.yaml"
     p.write_text(
-        textwrap.dedent("""\
+        textwrap.dedent(
+            """\
             data:
               raw_path: data/raw/creditcard.csv
               sample_path: data/sample/
@@ -37,7 +37,8 @@ def config_file(tmp_path: Path) -> Path:
             streaming:
               rate: 10
               fraud_rate: 0.02
-        """)
+        """
+        )
     )
     return p
 
@@ -108,8 +109,8 @@ def test_env_override_string(config_file: Path, monkeypatch: pytest.MonkeyPatch)
     monkeypatch.setenv("FRAUD_MODEL_DEFAULT_MODEL", "random_forest")
     cfg = Config(config_file)
 
-    # NOTE: env key split on first "_" after prefix → section="model", name="default_model"
-    # The current split("_", 1) produces section="model", name="default_model" — correct.
+    # env key split on first "_" after prefix:
+    # section="model", name="default_model"
     assert cfg.get("model", "default_model") == "random_forest"
 
 

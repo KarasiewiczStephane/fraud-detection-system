@@ -7,7 +7,6 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import plotly.express as px
-import plotly.figure_factory as ff
 import streamlit as st
 
 from src.dashboard.data import filter_by_date_range, get_recent_predictions
@@ -40,10 +39,14 @@ def render(conn: sqlite3.Connection) -> None:
 
     # --- Metrics over time (hourly buckets) ---
     df["hour"] = df["timestamp"].dt.floor("h")
-    hourly = df.groupby("hour").agg(
-        total=("prediction", "count"),
-        fraud=("prediction", "sum"),
-    ).reset_index()
+    hourly = (
+        df.groupby("hour")
+        .agg(
+            total=("prediction", "count"),
+            fraud=("prediction", "sum"),
+        )
+        .reset_index()
+    )
     hourly["fraud_rate"] = hourly["fraud"] / hourly["total"]
 
     fig = px.line(
@@ -59,12 +62,20 @@ def render(conn: sqlite3.Connection) -> None:
     st.subheader("Prediction Distribution")
     fraud_count = int(df["prediction"].sum())
     normal_count = len(df) - fraud_count
-    dist_df = pd.DataFrame({
-        "Class": ["Normal", "Fraud"],
-        "Count": [normal_count, fraud_count],
-    })
-    fig2 = px.bar(dist_df, x="Class", y="Count", title="Prediction Distribution",
-                  color="Class", color_discrete_map={"Normal": "green", "Fraud": "red"})
+    dist_df = pd.DataFrame(
+        {
+            "Class": ["Normal", "Fraud"],
+            "Count": [normal_count, fraud_count],
+        }
+    )
+    fig2 = px.bar(
+        dist_df,
+        x="Class",
+        y="Count",
+        title="Prediction Distribution",
+        color="Class",
+        color_discrete_map={"Normal": "green", "Fraud": "red"},
+    )
     st.plotly_chart(fig2, use_container_width=True)
 
     # --- Summary stats ---

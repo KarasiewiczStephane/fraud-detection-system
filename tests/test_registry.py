@@ -171,15 +171,18 @@ class TestLoad:
         assert meta["threshold"] == 0.5
 
     def test_load_latest(self, registry, model, metrics, params):
-        v1 = registry.save(model, "lr", metrics, params, threshold=0.5)
+        registry.save(model, "lr", metrics, params, threshold=0.5)
         # Save a second version (force different timestamp by manipulating directory)
         v2_dir = registry.base_path / "lr" / "99999999_999999"
         v2_dir.mkdir(parents=True)
         joblib.dump(model, v2_dir / "model.joblib")
         meta = {
-            "name": "lr", "version": "99999999_999999",
-            "metrics": metrics.to_dict(), "params": params,
-            "threshold": 0.6, "created_at": "2099-01-01T00:00:00",
+            "name": "lr",
+            "version": "99999999_999999",
+            "metrics": metrics.to_dict(),
+            "params": params,
+            "threshold": 0.6,
+            "created_at": "2099-01-01T00:00:00",
         }
         (v2_dir / "metadata.json").write_text(json.dumps(meta))
 
@@ -263,7 +266,9 @@ class TestListing:
         versions = registry.list_versions("lr")
         assert versions == ["20240101_000000", "20240102_000000", "20240103_000000"]
 
-    def test_list_versions_ignores_dirs_without_metadata(self, registry, model, metrics, params):
+    def test_list_versions_ignores_dirs_without_metadata(
+        self, registry, model, metrics, params
+    ):
         registry.save(model, "lr", metrics, params, threshold=0.5)
         (registry.base_path / "lr" / "stray_dir").mkdir()
         versions = registry.list_versions("lr")

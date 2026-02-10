@@ -23,9 +23,7 @@ class StreamConsumer:
 
     def __init__(
         self,
-        log_fn: Optional[
-            Callable[[Dict[str, Any], Dict[str, Any]], Coroutine]
-        ] = None,
+        log_fn: Optional[Callable[[Dict[str, Any], Dict[str, Any]], Coroutine]] = None,
     ) -> None:
         self.log_fn = log_fn
         self.processed: int = 0
@@ -51,7 +49,8 @@ class StreamConsumer:
         while not self._stopped:
             try:
                 transaction: Dict[str, Any] = await asyncio.wait_for(
-                    queue.get(), timeout=2.0,
+                    queue.get(),
+                    timeout=2.0,
                 )
             except asyncio.TimeoutError:
                 # No items for 2 s — check stop flag and retry

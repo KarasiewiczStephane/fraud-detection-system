@@ -16,13 +16,13 @@ logger = get_logger(__name__)
 async def main() -> None:
     api_url = os.environ.get("API_URL", "http://localhost:8000")
     rate = float(os.environ.get("STREAM_RATE", "10"))
-    data_path = os.environ.get(
-        "DATA_PATH", "data/sample/sample_transactions.csv"
-    )
+    data_path = os.environ.get("DATA_PATH", "data/sample/sample_transactions.csv")
 
     logger.info(
         "Starting simulator: rate=%.1f, data=%s, api=%s",
-        rate, data_path, api_url,
+        rate,
+        data_path,
+        api_url,
     )
 
     sim = TransactionSimulator(Path(data_path), rate=rate)
@@ -35,8 +35,11 @@ async def main() -> None:
 
         payload = {
             "transaction_id": txn.get("transaction_id", "unknown"),
-            **{k: float(v) for k, v in txn.items()
-               if k.startswith("V") or k in ("Time", "Amount")},
+            **{
+                k: float(v)
+                for k, v in txn.items()
+                if k.startswith("V") or k in ("Time", "Amount")
+            },
         }
         async with httpx.AsyncClient(base_url=api_url) as client:
             resp = await client.post("/api/v1/predict", json=payload)

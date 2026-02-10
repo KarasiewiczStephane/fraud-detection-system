@@ -95,7 +95,9 @@ class ModelTrainer:
         "xgboost": XGBClassifier,
     }
 
-    def __init__(self, model_type: str, params: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(
+        self, model_type: str, params: Optional[Dict[str, Any]] = None
+    ) -> None:
         if model_type not in self.MODELS:
             raise ValueError(
                 f"Unknown model type: {model_type!r}. "
@@ -362,8 +364,7 @@ class ModelTrainer:
         valid = set(sig.parameters.keys())
         # If **kwargs is accepted, allow everything through
         if any(
-            p.kind == inspect.Parameter.VAR_KEYWORD
-            for p in sig.parameters.values()
+            p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
         ):
             return params
         return {k: v for k, v in params.items() if k in valid}

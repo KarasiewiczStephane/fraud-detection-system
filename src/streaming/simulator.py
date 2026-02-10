@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import random
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -78,9 +78,7 @@ class TransactionSimulator:
             if delay > 0:
                 await asyncio.sleep(delay)
 
-        logger.info(
-            "Simulator finished — emitted %d transactions", len(self.data)
-        )
+        logger.info("Simulator finished — emitted %d transactions", len(self.data))
 
     def stop(self) -> None:
         """Signal the stream loop to stop after the current iteration."""
@@ -105,9 +103,7 @@ class TransactionSimulator:
         # Shift a handful of V-features that are typically discriminative
         for col in ("V1", "V3", "V4", "V7", "V10", "V14"):
             if col in record:
-                record[col] = float(
-                    record[col] + self._np_rng.normal(-3, 1)
-                )
+                record[col] = float(record[col] + self._np_rng.normal(-3, 1))
         return record
 
     # ------------------------------------------------------------------

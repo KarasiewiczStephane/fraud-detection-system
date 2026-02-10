@@ -6,7 +6,7 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -84,7 +84,9 @@ class FeatureStore:
         meta_path = version_dir / self._META_NAME
         meta_path.write_text(json.dumps(asdict(meta), indent=2))
 
-        logger.info("Saved version '%s' (%d rows, %d cols)", version, len(df), len(df.columns))
+        logger.info(
+            "Saved version '%s' (%d rows, %d cols)", version, len(df), len(df.columns)
+        )
         return version
 
     # ------------------------------------------------------------------
@@ -141,7 +143,9 @@ class FeatureStore:
                     f"metadata expects {expected_rows}"
                 )
 
-        logger.info("Loaded version '%s' (%d rows, %d cols)", version, len(df), len(df.columns))
+        logger.info(
+            "Loaded version '%s' (%d rows, %d cols)", version, len(df), len(df.columns)
+        )
         return df
 
     # ------------------------------------------------------------------
@@ -179,10 +183,16 @@ class FeatureStore:
     def _resolve_latest(self) -> str:
         """Return the version string of the most recent save."""
         if not self.base_path.exists():
-            raise FileNotFoundError(f"Feature store path does not exist: {self.base_path}")
+            raise FileNotFoundError(
+                f"Feature store path does not exist: {self.base_path}"
+            )
 
         dirs = sorted(
-            [d.name for d in self.base_path.iterdir() if d.is_dir() and (d / self._META_NAME).exists()]
+            [
+                d.name
+                for d in self.base_path.iterdir()
+                if d.is_dir() and (d / self._META_NAME).exists()
+            ]
         )
         if not dirs:
             raise FileNotFoundError("No versions found in feature store")

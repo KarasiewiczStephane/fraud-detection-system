@@ -15,7 +15,9 @@ from src.models.trainer import CVResults, FoldMetrics, ModelTrainer, TrainingMet
 # Helpers
 # ------------------------------------------------------------------
 
-MODEL_PARAMS_PATH = Path(__file__).resolve().parents[1] / "configs" / "model_params.yaml"
+MODEL_PARAMS_PATH = (
+    Path(__file__).resolve().parents[1] / "configs" / "model_params.yaml"
+)
 
 
 def _make_dataset(
@@ -310,7 +312,12 @@ class TestCrossValidation:
         t = ModelTrainer("logistic_regression", {"max_iter": 1000})
         results = t.cross_validate(X, y, cv=3)
         s = results.summary()
-        assert set(s.keys()) == {"mean_precision", "mean_recall", "mean_f1", "mean_auc_roc"}
+        assert set(s.keys()) == {
+            "mean_precision",
+            "mean_recall",
+            "mean_f1",
+            "mean_auc_roc",
+        }
 
     def test_cv_random_forest(self, small_dataset):
         X, y = small_dataset
@@ -344,7 +351,9 @@ class TestCVResultsDataclass:
         assert r.n_folds == 0
 
     def test_mean_of_single_fold(self):
-        r = CVResults(folds=[FoldMetrics(fold=0, precision=0.8, recall=0.6, f1=0.7, auc_roc=0.9)])
+        r = CVResults(
+            folds=[FoldMetrics(fold=0, precision=0.8, recall=0.6, f1=0.7, auc_roc=0.9)]
+        )
         assert r.mean_precision == pytest.approx(0.8)
         assert r.mean_recall == pytest.approx(0.6)
         assert r.mean_f1 == pytest.approx(0.7)

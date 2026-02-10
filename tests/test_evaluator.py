@@ -67,8 +67,11 @@ def evaluator():
 class TestEvaluationMetrics:
     def test_to_dict(self):
         m = EvaluationMetrics(
-            precision=0.8, recall=0.7, f1=0.75,
-            auc_roc=0.9, auc_pr=0.85,
+            precision=0.8,
+            recall=0.7,
+            f1=0.75,
+            auc_roc=0.9,
+            auc_pr=0.85,
             confusion_matrix=[[90, 10], [5, 45]],
         )
         d = m.to_dict()
@@ -78,12 +81,22 @@ class TestEvaluationMetrics:
 
     def test_all_fields_present(self):
         m = EvaluationMetrics(
-            precision=0.5, recall=0.5, f1=0.5,
-            auc_roc=0.5, auc_pr=0.5,
+            precision=0.5,
+            recall=0.5,
+            f1=0.5,
+            auc_roc=0.5,
+            auc_pr=0.5,
             confusion_matrix=[[1, 0], [0, 1]],
         )
         d = m.to_dict()
-        expected_keys = {"precision", "recall", "f1", "auc_roc", "auc_pr", "confusion_matrix"}
+        expected_keys = {
+            "precision",
+            "recall",
+            "f1",
+            "auc_roc",
+            "auc_pr",
+            "confusion_matrix",
+        }
         assert set(d.keys()) == expected_keys
 
 
@@ -174,18 +187,27 @@ class TestCompareModels:
     def _make_results(self):
         return {
             "model_a": EvaluationMetrics(
-                precision=0.8, recall=0.7, f1=0.75,
-                auc_roc=0.9, auc_pr=0.85,
+                precision=0.8,
+                recall=0.7,
+                f1=0.75,
+                auc_roc=0.9,
+                auc_pr=0.85,
                 confusion_matrix=[[90, 10], [15, 35]],
             ),
             "model_b": EvaluationMetrics(
-                precision=0.7, recall=0.9, f1=0.79,
-                auc_roc=0.88, auc_pr=0.82,
+                precision=0.7,
+                recall=0.9,
+                f1=0.79,
+                auc_roc=0.88,
+                auc_pr=0.82,
                 confusion_matrix=[[80, 20], [5, 45]],
             ),
             "model_c": EvaluationMetrics(
-                precision=0.6, recall=0.6, f1=0.6,
-                auc_roc=0.75, auc_pr=0.70,
+                precision=0.6,
+                recall=0.6,
+                f1=0.6,
+                auc_roc=0.75,
+                auc_pr=0.70,
                 confusion_matrix=[[85, 15], [20, 30]],
             ),
         }
@@ -225,8 +247,11 @@ class TestCompareModels:
     def test_single_model(self, evaluator):
         results = {
             "only_model": EvaluationMetrics(
-                precision=0.5, recall=0.5, f1=0.5,
-                auc_roc=0.5, auc_pr=0.5,
+                precision=0.5,
+                recall=0.5,
+                f1=0.5,
+                auc_roc=0.5,
+                auc_pr=0.5,
                 confusion_matrix=[[1, 0], [0, 1]],
             ),
         }

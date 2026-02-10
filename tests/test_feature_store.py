@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import json
-import time
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -64,12 +62,12 @@ class TestSave:
         assert version[8] == "_"
 
     def test_creates_parquet_file(self, store, small_df):
-        version = store.save(small_df, version="v1")
+        store.save(small_df, version="v1")
         parquet = store.base_path / "v1" / "features.parquet"
         assert parquet.exists()
 
     def test_creates_metadata_file(self, store, small_df):
-        version = store.save(small_df, version="v1")
+        store.save(small_df, version="v1")
         meta = store.base_path / "v1" / "metadata.json"
         assert meta.exists()
 

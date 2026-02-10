@@ -77,7 +77,7 @@ async def test_get_prediction_not_found(db: DatabaseManager):
 
 @pytest.mark.asyncio
 async def test_insert_prediction_without_shap(db: DatabaseManager):
-    row_id = await db.insert_prediction(
+    await db.insert_prediction(
         transaction_id="txn_002",
         features={"V1": 0.5},
         prediction=0,

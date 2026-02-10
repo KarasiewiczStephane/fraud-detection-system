@@ -202,13 +202,17 @@ class TestBatchPrediction:
     @pytest.mark.asyncio
     async def test_batch_returns_correct_count(self, client):
         txns = [_valid_payload(f"txn_{i}") for i in range(5)]
-        data = (await client.post("/api/v1/predict/batch", json={"transactions": txns})).json()
+        data = (
+            await client.post("/api/v1/predict/batch", json={"transactions": txns})
+        ).json()
         assert len(data["predictions"]) == 5
 
     @pytest.mark.asyncio
     async def test_batch_transaction_ids_match(self, client):
         txns = [_valid_payload(f"txn_{i}") for i in range(3)]
-        data = (await client.post("/api/v1/predict/batch", json={"transactions": txns})).json()
+        data = (
+            await client.post("/api/v1/predict/batch", json={"transactions": txns})
+        ).json()
         ids = [p["transaction_id"] for p in data["predictions"]]
         assert ids == ["txn_0", "txn_1", "txn_2"]
 

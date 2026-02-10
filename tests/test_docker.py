@@ -258,7 +258,7 @@ class TestMakefile:
         assert "docker build" in content
 
     def test_phony_includes_docker_targets(self, content):
-        phony_line = [l for l in content.split("\n") if ".PHONY" in l][0]
+        phony_line = [line for line in content.split("\n") if ".PHONY" in line][0]
         assert "docker-up" in phony_line
         assert "docker-down" in phony_line
         assert "docker-logs" in phony_line
@@ -314,4 +314,5 @@ class TestRunSimulator:
     def test_importable(self):
         from src.streaming.run_simulator import main
         import asyncio
+
         assert asyncio.iscoroutinefunction(main)

@@ -10,12 +10,15 @@ import pytest
 
 from src.data.preprocessor import FeatureEngineer, _make_card_id
 
-SAMPLE_PATH = Path(__file__).resolve().parents[1] / "data" / "sample" / "sample_transactions.csv"
+SAMPLE_PATH = (
+    Path(__file__).resolve().parents[1] / "data" / "sample" / "sample_transactions.csv"
+)
 
 
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
+
 
 def _make_df(
     n: int = 20,
@@ -195,7 +198,7 @@ class TestAmountStatistics:
 
         # For win=5, row 3: past window is rows 0,1,2
         expected_mean = np.mean(amounts[:3])
-        actual_mean = result.iloc[3][f"amt_mean_5"]
+        actual_mean = result.iloc[3]["amt_mean_5"]
         assert abs(actual_mean - expected_mean) < 1e-6
 
     def test_constant_amount_zero_std(self, fe, constant_amount):

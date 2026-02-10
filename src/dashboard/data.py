@@ -10,7 +10,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import pandas as pd
 
@@ -44,8 +44,14 @@ def get_recent_predictions(
     if not rows:
         return pd.DataFrame(
             columns=[
-                "id", "transaction_id", "features", "prediction",
-                "confidence", "model_version", "shap_values", "timestamp",
+                "id",
+                "transaction_id",
+                "features",
+                "prediction",
+                "confidence",
+                "model_version",
+                "shap_values",
+                "timestamp",
             ]
         )
     df = pd.DataFrame(rows)
@@ -71,8 +77,14 @@ def get_predictions_since(
     if not rows:
         return pd.DataFrame(
             columns=[
-                "id", "transaction_id", "features", "prediction",
-                "confidence", "model_version", "shap_values", "timestamp",
+                "id",
+                "transaction_id",
+                "features",
+                "prediction",
+                "confidence",
+                "model_version",
+                "shap_values",
+                "timestamp",
             ]
         )
     return pd.DataFrame(rows)
@@ -126,15 +138,18 @@ def compute_overview_metrics(
 
 def get_ab_results(conn: sqlite3.Connection) -> pd.DataFrame:
     """Return all A/B test results as a DataFrame."""
-    cursor = conn.execute(
-        "SELECT * FROM ab_test_results ORDER BY id DESC"
-    )
+    cursor = conn.execute("SELECT * FROM ab_test_results ORDER BY id DESC")
     rows = [dict(r) for r in cursor.fetchall()]
     if not rows:
         return pd.DataFrame(
             columns=[
-                "id", "model_name", "transaction_id", "prediction",
-                "actual", "latency_ms", "timestamp",
+                "id",
+                "model_name",
+                "transaction_id",
+                "prediction",
+                "actual",
+                "latency_ms",
+                "timestamp",
             ]
         )
     return pd.DataFrame(rows)
@@ -176,8 +191,14 @@ def get_high_confidence_alerts(
     if not rows:
         return pd.DataFrame(
             columns=[
-                "id", "transaction_id", "features", "prediction",
-                "confidence", "model_version", "shap_values", "timestamp",
+                "id",
+                "transaction_id",
+                "features",
+                "prediction",
+                "confidence",
+                "model_version",
+                "shap_values",
+                "timestamp",
             ]
         )
     return pd.DataFrame(rows)

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 import numpy as np
 from fastapi import APIRouter, Query
@@ -54,7 +54,10 @@ async def predict_single(
 
     state = get_state()
     result = _make_prediction(
-        transaction, state.model, state.threshold, state.model_version,
+        transaction,
+        state.model,
+        state.threshold,
+        state.model_version,
     )
 
     # Log to database

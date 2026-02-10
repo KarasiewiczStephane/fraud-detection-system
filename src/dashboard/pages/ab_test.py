@@ -5,7 +5,6 @@ from __future__ import annotations
 import sqlite3
 
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 from src.dashboard.data import get_ab_results, get_ab_summary

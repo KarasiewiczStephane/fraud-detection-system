@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
-
 import numpy as np
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sklearn.linear_model import LogisticRegression
 
-from src.api.app import AppState, app, get_state, set_state
+from src.api.app import AppState, app, set_state
 from src.streaming.ab_router import ABTestRouter, MetricsTracker, SignificanceResult
 from src.utils.database import DatabaseManager
 
@@ -250,7 +248,7 @@ class TestSignificance:
             r.metrics["A"].record(prediction=1)
         for _ in range(200):
             r.metrics["B"].record(prediction=0)
-        sig_strict = r.compute_significance(alpha=0.001)
+        r.compute_significance(alpha=0.001)
         sig_loose = r.compute_significance(alpha=0.5)
         # strict alpha makes it harder to be significant
         assert sig_loose.is_significant is True

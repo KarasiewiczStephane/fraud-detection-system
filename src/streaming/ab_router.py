@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -71,9 +71,7 @@ class MetricsTracker:
     def accuracy(self) -> Optional[float]:
         """Accuracy computed over predictions that have a known actual label."""
         pairs = [
-            (p, a)
-            for p, a in zip(self.predictions, self.actuals)
-            if a is not None
+            (p, a) for p, a in zip(self.predictions, self.actuals) if a is not None
         ]
         if not pairs:
             return None
@@ -197,7 +195,8 @@ class ABTestRouter:
     # ------------------------------------------------------------------
 
     def compute_significance(
-        self, alpha: float = 0.05,
+        self,
+        alpha: float = 0.05,
     ) -> SignificanceResult:
         """Run a chi-squared test comparing fraud detection rates.
 

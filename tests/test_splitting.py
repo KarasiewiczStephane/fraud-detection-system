@@ -14,7 +14,9 @@ from src.data.preprocessor import balance_classes, temporal_split
 # ------------------------------------------------------------------
 
 
-def _make_time_df(n: int = 100, fraud_rate: float = 0.05, seed: int = 42) -> pd.DataFrame:
+def _make_time_df(
+    n: int = 100, fraud_rate: float = 0.05, seed: int = 42
+) -> pd.DataFrame:
     """Build a synthetic time-ordered dataframe with a Class column."""
     rng = np.random.default_rng(seed)
     n_fraud = max(1, int(n * fraud_rate))
@@ -192,7 +194,7 @@ class TestBalanceClassesWeight:
         assert weights[1] == pytest.approx(1.0)
 
     def test_weight_formula(self, imbalanced_y):
-        """Verify weights match sklearn's 'balanced' formula: n / (n_classes * count_k)."""
+        """Verify weights match balanced formula: n/(n_classes*count_k)."""
         X_dummy = np.zeros((len(imbalanced_y), 3))
         weights = balance_classes(X_dummy, imbalanced_y, strategy="class_weight")
         n = len(imbalanced_y)

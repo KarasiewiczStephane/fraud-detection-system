@@ -6,7 +6,7 @@ import json
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import joblib
 
@@ -144,11 +144,7 @@ class ModelRegistry:
         """Return the names of all registered models."""
         if not self.base_path.exists():
             return []
-        return sorted(
-            d.name
-            for d in self.base_path.iterdir()
-            if d.is_dir()
-        )
+        return sorted(d.name for d in self.base_path.iterdir() if d.is_dir())
 
     def list_versions(self, name: str) -> List[str]:
         """Return all version strings for a given model name, oldest first."""

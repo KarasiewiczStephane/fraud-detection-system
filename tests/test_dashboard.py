@@ -211,8 +211,14 @@ class TestOverviewMetrics:
 
     def test_contains_keys(self, seeded_conn):
         metrics = compute_overview_metrics(seeded_conn)
-        for key in ("total_1h", "total_24h", "total_7d", "total_all",
-                     "fraud_count", "fraud_rate"):
+        for key in (
+            "total_1h",
+            "total_24h",
+            "total_7d",
+            "total_all",
+            "fraud_count",
+            "fraud_rate",
+        ):
             assert key in metrics
 
     def test_total_all(self, seeded_conn):
@@ -312,14 +318,16 @@ class TestAlerts:
 
 class TestDateFilter:
     def test_filters_correctly(self):
-        df = pd.DataFrame({
-            "timestamp": [
-                "2024-01-01T10:00:00",
-                "2024-01-02T10:00:00",
-                "2024-01-03T10:00:00",
-            ],
-            "value": [1, 2, 3],
-        })
+        df = pd.DataFrame(
+            {
+                "timestamp": [
+                    "2024-01-01T10:00:00",
+                    "2024-01-02T10:00:00",
+                    "2024-01-03T10:00:00",
+                ],
+                "value": [1, 2, 3],
+            }
+        )
         start = datetime(2024, 1, 1, 12, 0, 0)
         end = datetime(2024, 1, 3, 0, 0, 0)
         result = filter_by_date_range(df, start, end)
@@ -336,23 +344,27 @@ class TestDateFilter:
         assert result.empty
 
     def test_all_in_range(self):
-        df = pd.DataFrame({
-            "timestamp": [
-                "2024-06-15T12:00:00",
-                "2024-06-15T13:00:00",
-            ],
-            "value": [10, 20],
-        })
+        df = pd.DataFrame(
+            {
+                "timestamp": [
+                    "2024-06-15T12:00:00",
+                    "2024-06-15T13:00:00",
+                ],
+                "value": [10, 20],
+            }
+        )
         start = datetime(2024, 6, 1)
         end = datetime(2024, 6, 30, 23, 59, 59)
         result = filter_by_date_range(df, start, end)
         assert len(result) == 2
 
     def test_none_in_range(self):
-        df = pd.DataFrame({
-            "timestamp": ["2023-01-01T00:00:00"],
-            "value": [1],
-        })
+        df = pd.DataFrame(
+            {
+                "timestamp": ["2023-01-01T00:00:00"],
+                "value": [1],
+            }
+        )
         start = datetime(2024, 1, 1)
         end = datetime(2024, 12, 31)
         result = filter_by_date_range(df, start, end)
@@ -448,32 +460,40 @@ class TestCSVExport:
 class TestDashboardFiles:
     def test_app_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/app.py").exists()
 
     def test_data_module_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/data.py").exists()
 
     def test_overview_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/overview.py").exists()
 
     def test_realtime_feed_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/realtime_feed.py").exists()
 
     def test_performance_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/performance.py").exists()
 
     def test_ab_test_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/ab_test.py").exists()
 
     def test_feature_importance_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/feature_importance.py").exists()
 
     def test_alerts_page_exists(self):
         from pathlib import Path
+
         assert Path("src/dashboard/pages/alerts.py").exists()

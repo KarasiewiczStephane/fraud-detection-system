@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -198,7 +197,9 @@ class SHAPExplainer:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def save_explanation(explanation: LocalExplanation, transaction_id: str) -> Dict[str, Any]:
+    def save_explanation(
+        explanation: LocalExplanation, transaction_id: str
+    ) -> Dict[str, Any]:
         """Serialize a local explanation for database / audit storage.
 
         Returns a JSON-safe dictionary keyed by *transaction_id*.
@@ -267,7 +268,11 @@ class SHAPExplainer:
         # --- Bar importance plot ---
         plt.figure()
         shap.summary_plot(
-            shap_values, X, feature_names=feature_names, plot_type="bar", show=False,
+            shap_values,
+            X,
+            feature_names=feature_names,
+            plot_type="bar",
+            show=False,
         )
         bar_path = output_dir / "shap_bar.png"
         plt.savefig(bar_path, bbox_inches="tight", dpi=150)

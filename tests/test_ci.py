@@ -18,17 +18,13 @@ ROOT = Path(__file__).resolve().parent.parent
 class TestCIWorkflow:
     @pytest.fixture
     def workflow(self):
-        return yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        return yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
 
     def test_workflow_file_exists(self):
         assert (ROOT / ".github" / "workflows" / "ci.yml").exists()
 
     def test_valid_yaml(self):
-        data = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        data = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         assert isinstance(data, dict)
 
     def test_name(self, workflow):
@@ -61,15 +57,11 @@ class TestCIWorkflow:
 class TestLintJob:
     @pytest.fixture
     def job(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         return wf["jobs"]["lint"]
 
     def test_lint_job_exists(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         assert "lint" in wf["jobs"]
 
     def test_runs_on_ubuntu(self, job):
@@ -103,15 +95,11 @@ class TestLintJob:
 class TestTestJob:
     @pytest.fixture
     def job(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         return wf["jobs"]["test"]
 
     def test_test_job_exists(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         assert "test" in wf["jobs"]
 
     def test_runs_on_ubuntu(self, job):
@@ -152,15 +140,11 @@ class TestTestJob:
 class TestDockerJob:
     @pytest.fixture
     def job(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         return wf["jobs"]["docker"]
 
     def test_docker_job_exists(self):
-        wf = yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        wf = yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
         assert "docker" in wf["jobs"]
 
     def test_runs_on_ubuntu(self, job):
@@ -212,17 +196,13 @@ class TestReadmeBadges:
 class TestPreCommitConfig:
     @pytest.fixture
     def config(self):
-        return yaml.safe_load(
-            (ROOT / ".pre-commit-config.yaml").read_text()
-        )
+        return yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text())
 
     def test_file_exists(self):
         assert (ROOT / ".pre-commit-config.yaml").exists()
 
     def test_valid_yaml(self):
-        data = yaml.safe_load(
-            (ROOT / ".pre-commit-config.yaml").read_text()
-        )
+        data = yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text())
         assert isinstance(data, dict)
 
     def test_has_repos(self, config):
@@ -234,57 +214,39 @@ class TestPreCommitConfig:
         assert "ruff-pre-commit" in repos_str
 
     def test_ruff_hook(self, config):
-        ruff_repos = [
-            r for r in config["repos"]
-            if "ruff" in str(r.get("repo", ""))
-        ]
+        ruff_repos = [r for r in config["repos"] if "ruff" in str(r.get("repo", ""))]
         assert len(ruff_repos) >= 1
         hooks = ruff_repos[0]["hooks"]
         hook_ids = [h["id"] for h in hooks]
         assert "ruff" in hook_ids
 
     def test_ruff_format_hook(self, config):
-        ruff_repos = [
-            r for r in config["repos"]
-            if "ruff" in str(r.get("repo", ""))
-        ]
+        ruff_repos = [r for r in config["repos"] if "ruff" in str(r.get("repo", ""))]
         hooks = ruff_repos[0]["hooks"]
         hook_ids = [h["id"] for h in hooks]
         assert "ruff-format" in hook_ids
 
     def test_local_pytest_hook(self, config):
-        local_repos = [
-            r for r in config["repos"]
-            if r.get("repo") == "local"
-        ]
+        local_repos = [r for r in config["repos"] if r.get("repo") == "local"]
         assert len(local_repos) >= 1
         hooks = local_repos[0]["hooks"]
         hook_ids = [h["id"] for h in hooks]
         assert "pytest" in hook_ids
 
     def test_pytest_hook_entry(self, config):
-        local_repos = [
-            r for r in config["repos"]
-            if r.get("repo") == "local"
-        ]
+        local_repos = [r for r in config["repos"] if r.get("repo") == "local"]
         hooks = local_repos[0]["hooks"]
         pytest_hook = [h for h in hooks if h["id"] == "pytest"][0]
         assert "pytest" in pytest_hook["entry"]
 
     def test_pytest_hook_language(self, config):
-        local_repos = [
-            r for r in config["repos"]
-            if r.get("repo") == "local"
-        ]
+        local_repos = [r for r in config["repos"] if r.get("repo") == "local"]
         hooks = local_repos[0]["hooks"]
         pytest_hook = [h for h in hooks if h["id"] == "pytest"][0]
         assert pytest_hook["language"] == "system"
 
     def test_ruff_rev_specified(self, config):
-        ruff_repos = [
-            r for r in config["repos"]
-            if "ruff" in str(r.get("repo", ""))
-        ]
+        ruff_repos = [r for r in config["repos"] if "ruff" in str(r.get("repo", ""))]
         assert "rev" in ruff_repos[0]
         assert ruff_repos[0]["rev"]  # non-empty
 
@@ -297,9 +259,7 @@ class TestPreCommitConfig:
 class TestJobDependencyChain:
     @pytest.fixture
     def workflow(self):
-        return yaml.safe_load(
-            (ROOT / ".github" / "workflows" / "ci.yml").read_text()
-        )
+        return yaml.safe_load((ROOT / ".github" / "workflows" / "ci.yml").read_text())
 
     def test_lint_has_no_dependencies(self, workflow):
         lint = workflow["jobs"]["lint"]

@@ -176,7 +176,10 @@ class TestFraudInjection:
     async def test_injection_at_rate_1(self, tiny_csv):
         """With fraud_injection_rate=1.0 every record should be fraud."""
         sim = TransactionSimulator(
-            tiny_csv, rate=10000, fraud_injection_rate=1.0, seed=42,
+            tiny_csv,
+            rate=10000,
+            fraud_injection_rate=1.0,
+            seed=42,
         )
         queue: asyncio.Queue = asyncio.Queue()
         await sim.stream(queue)
@@ -190,7 +193,10 @@ class TestFraudInjection:
     async def test_injection_at_rate_0(self, tiny_csv):
         """With fraud_injection_rate=0.0 no records should be modified."""
         sim = TransactionSimulator(
-            tiny_csv, rate=10000, fraud_injection_rate=0.0, seed=42,
+            tiny_csv,
+            rate=10000,
+            fraud_injection_rate=0.0,
+            seed=42,
         )
         queue: asyncio.Queue = asyncio.Queue()
         await sim.stream(queue)
@@ -201,21 +207,45 @@ class TestFraudInjection:
 
     def test_inject_fraud_pattern_sets_class_1(self, tiny_csv):
         sim = TransactionSimulator(tiny_csv, rate=100, seed=42)
-        record = {"Amount": 10.0, "Class": 0, "V1": 0.0, "V3": 0.0,
-                  "V4": 0.0, "V7": 0.0, "V10": 0.0, "V14": 0.0}
+        record = {
+            "Amount": 10.0,
+            "Class": 0,
+            "V1": 0.0,
+            "V3": 0.0,
+            "V4": 0.0,
+            "V7": 0.0,
+            "V10": 0.0,
+            "V14": 0.0,
+        }
         modified = sim._inject_fraud_pattern(record)
         assert modified["Class"] == 1
 
     def test_inject_fraud_pattern_large_amount(self, tiny_csv):
         sim = TransactionSimulator(tiny_csv, rate=100, seed=42)
-        record = {"Amount": 10.0, "Class": 0, "V1": 0.0, "V3": 0.0,
-                  "V4": 0.0, "V7": 0.0, "V10": 0.0, "V14": 0.0}
+        record = {
+            "Amount": 10.0,
+            "Class": 0,
+            "V1": 0.0,
+            "V3": 0.0,
+            "V4": 0.0,
+            "V7": 0.0,
+            "V10": 0.0,
+            "V14": 0.0,
+        }
         modified = sim._inject_fraud_pattern(record)
         assert modified["Amount"] >= 500
 
     def test_inject_fraud_pattern_does_not_mutate_original(self, tiny_csv):
         sim = TransactionSimulator(tiny_csv, rate=100, seed=42)
-        record = {"Amount": 10.0, "Class": 0, "V1": 0.0, "V3": 0.0,
-                  "V4": 0.0, "V7": 0.0, "V10": 0.0, "V14": 0.0}
+        record = {
+            "Amount": 10.0,
+            "Class": 0,
+            "V1": 0.0,
+            "V3": 0.0,
+            "V4": 0.0,
+            "V7": 0.0,
+            "V10": 0.0,
+            "V14": 0.0,
+        }
         sim._inject_fraud_pattern(record)
         assert record["Class"] == 0  # original unchanged

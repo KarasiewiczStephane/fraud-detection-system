@@ -19,7 +19,9 @@ def render(conn: sqlite3.Connection) -> None:
         return
 
     # Build display table
-    display = df[["transaction_id", "prediction", "confidence", "model_version", "timestamp"]].copy()
+    display = df[
+        ["transaction_id", "prediction", "confidence", "model_version", "timestamp"]
+    ].copy()
     display.rename(
         columns={
             "transaction_id": "Transaction ID",
@@ -51,11 +53,13 @@ def render(conn: sqlite3.Connection) -> None:
     if selected is not None:
         row = df[df["transaction_id"] == selected].iloc[0]
         with st.expander("Details", expanded=True):
-            st.json({
-                "transaction_id": row["transaction_id"],
-                "prediction": int(row["prediction"]),
-                "confidence": float(row["confidence"]),
-                "model_version": row["model_version"],
-                "timestamp": row["timestamp"],
-                "features": row.get("features"),
-            })
+            st.json(
+                {
+                    "transaction_id": row["transaction_id"],
+                    "prediction": int(row["prediction"]),
+                    "confidence": float(row["confidence"]),
+                    "model_version": row["model_version"],
+                    "timestamp": row["timestamp"],
+                    "features": row.get("features"),
+                }
+            )

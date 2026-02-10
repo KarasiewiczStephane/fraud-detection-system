@@ -22,8 +22,12 @@ def _make_dataset(n: int = 200, n_features: int = 10, seed: int = 42):
     rng = np.random.default_rng(seed)
     n_fraud = max(10, int(n * 0.15))
     n_normal = n - n_fraud
-    X = np.vstack([rng.normal(0, 1, (n_normal, n_features)),
-                    rng.normal(2, 1, (n_fraud, n_features))])
+    X = np.vstack(
+        [
+            rng.normal(0, 1, (n_normal, n_features)),
+            rng.normal(2, 1, (n_fraud, n_features)),
+        ]
+    )
     y = np.concatenate([np.zeros(n_normal), np.ones(n_fraud)]).astype(int)
     idx = rng.permutation(n)
     return X[idx], y[idx]
@@ -101,7 +105,9 @@ class TestInit:
 
     def test_logistic_regression_kernel_explainer(self, lr_model, dataset):
         X, _ = dataset
-        exp = SHAPExplainer(lr_model, model_type="logistic_regression", background_data=X[:20])
+        exp = SHAPExplainer(
+            lr_model, model_type="logistic_regression", background_data=X[:20]
+        )
         assert exp.model_type == "logistic_regression"
 
     def test_kernel_explainer_requires_background(self, lr_model):
@@ -374,7 +380,7 @@ class TestPlotGeneration:
     def test_generates_beeswarm(self, xgb_explainer, dataset, tmp_path):
         X, _ = dataset
         names = _feature_names(X.shape[1])
-        paths = xgb_explainer.generate_plots(X[:20], names, tmp_path / "plots")
+        xgb_explainer.generate_plots(X[:20], names, tmp_path / "plots")
         beeswarm = tmp_path / "plots" / "shap_beeswarm.png"
         assert beeswarm.exists()
         assert beeswarm.stat().st_size > 0
@@ -382,7 +388,7 @@ class TestPlotGeneration:
     def test_generates_bar_plot(self, xgb_explainer, dataset, tmp_path):
         X, _ = dataset
         names = _feature_names(X.shape[1])
-        paths = xgb_explainer.generate_plots(X[:20], names, tmp_path / "plots")
+        xgb_explainer.generate_plots(X[:20], names, tmp_path / "plots")
         bar = tmp_path / "plots" / "shap_bar.png"
         assert bar.exists()
         assert bar.stat().st_size > 0
