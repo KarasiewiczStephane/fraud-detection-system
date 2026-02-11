@@ -51,7 +51,7 @@ Streamlit UI with auto-refresh.
 
 | Module | Responsibility |
 |---|---|
-| `app.py` | Main entry point. Wide layout, 30-second auto-refresh, sidebar navigation. |
+| `app.py` | Main entry point. Wide layout, 30-second auto-refresh, sidebar navigation with integrated simulator start/stop controls (spawns simulator as a subprocess). |
 | `data.py` | Synchronous SQLite data access layer (plain `sqlite3`, not `aiosqlite`). Provides `get_recent_predictions`, `compute_overview_metrics`, `get_ab_results`, `get_high_confidence_alerts`, date filtering, and CSV export. |
 | `_pages/overview.py` | Big-number metric cards: transactions in 1h / 24h / 7d, fraud count, fraud rate. |
 | `_pages/realtime_feed.py` | Latest 50 predictions with colour-coded fraud probability. |
@@ -92,16 +92,16 @@ Streamlit UI with auto-refresh.
 ┌─────────────┐     ┌──────────┐     ┌─────────────────────────────────┐
 │ Simulator   │────>│ Consumer │────>│ FastAPI (/predict, /batch, /ab) │
 │ (async gen) │     │ (queue)  │     └──────────────┬──────────────────┘
-└─────────────┘     └──────────┘                    │
-                                                    v
-                                              ┌───────────┐
-                                              │  SQLite   │
-                                              │  (preds)  │
-                                              └─────┬─────┘
-                                                    │
-                                                    v
-                                              ┌───────────┐
-                                              │ Streamlit │
+└──────┬──────┘     └──────────┘                    │
+       ^                                            v
+       │ start/stop                           ┌───────────┐
+       │ (subprocess)                         │  SQLite   │
+       │                                      │  (preds)  │
+       │                                      └─────┬─────┘
+       │                                            │
+       │                                            v
+       │                                      ┌───────────┐
+       └──────────────────────────────────────│ Streamlit │
                                               │ Dashboard │
                                               └───────────┘
 ```

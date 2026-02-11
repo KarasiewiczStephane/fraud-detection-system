@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+import subprocess
 import sys
 from pathlib import Path
 
@@ -40,6 +41,44 @@ PAGES = [
 ]
 
 page = st.sidebar.selectbox("Page", PAGES)
+
+# ------------------------------------------------------------------
+# Simulator controls (sidebar)
+# ------------------------------------------------------------------
+
+st.sidebar.divider()
+st.sidebar.subheader("Simulator")
+
+if "simulator_process" not in st.session_state:
+    st.session_state.simulator_process = None
+
+
+def _simulator_running() -> bool:
+    proc = st.session_state.simulator_process
+    return proc is not None and proc.poll() is None
+
+
+if _simulator_running():
+    st.sidebar.success("Simulator is running")
+    if st.sidebar.button("Stop Simulator"):
+        st.session_state.simulator_process.terminate()
+        st.session_state.simulator_process.wait()
+        st.session_state.simulator_process = None
+        st.rerun()
+else:
+    rate = st.sidebar.slider("Transactions / sec", min_value=1, max_value=50, value=10)
+    if st.sidebar.button("Start Simulator"):
+        proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "src.streaming.run_simulator",
+            ],
+            cwd=_project_root,
+            env={**__import__("os").environ, "STREAM_RATE": str(rate)},
+        )
+        st.session_state.simulator_process = proc
+        st.rerun()
 
 # ------------------------------------------------------------------
 # Database connection — fresh per run to avoid cross-thread errors

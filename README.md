@@ -16,7 +16,7 @@ End-to-end machine-learning system for detecting fraudulent credit card transact
 - **Model registry** — versioned model storage with metadata (joblib + JSON)
 - **Explainability** — SHAP-based per-prediction and global feature importance
 - **REST API** — FastAPI endpoints for single and batch prediction with confidence scores
-- **Streaming simulator** — async transaction stream with configurable fraud injection rate
+- **Streaming simulator** — async transaction stream with configurable fraud injection rate, launchable directly from the dashboard sidebar
 - **A/B testing** — deterministic traffic splitting with chi-squared significance testing
 - **Monitoring dashboard** — Streamlit UI with real-time feed, performance charts, alerts, and A/B comparison
 - **Docker Compose** — multi-service deployment (API, dashboard, simulator) with health checks
@@ -56,6 +56,7 @@ graph LR
     subgraph Monitoring
         Q[Streamlit Dashboard]
         Q --> R[(SQLite)]
+        Q -->|start/stop| N
         I --> R
     end
 ```
@@ -79,11 +80,10 @@ pyenv local 3.11
 pip install -r requirements.txt
 ```
 
-### Running the Full System (3 terminals)
+### Running the Full System
 
-The system has three components that work together. On first start the API
-auto-trains a RandomForest on the sample dataset so everything works out of
-the box — no manual training step required.
+On first start the API auto-trains a RandomForest on the sample dataset so
+everything works out of the box — no manual training step required.
 
 **Terminal 1 — API server:**
 
@@ -95,15 +95,24 @@ The API starts at [http://localhost:8000](http://localhost:8000). It loads (or
 trains) a model, initialises the SQLite database, sets up the SHAP explainer,
 and enables A/B testing.
 
-**Terminal 2 — Transaction simulator:**
+**Terminal 2 — Monitoring dashboard:**
+
+```bash
+streamlit run src/dashboard/app.py
+```
+
+Opens at [http://localhost:8501](http://localhost:8501). Use the **Simulator**
+controls in the sidebar to start/stop the transaction stream directly from the
+dashboard — no extra terminal needed. Adjust the transactions-per-second rate
+with the slider before starting.
+
+Alternatively, run the simulator manually in a separate terminal:
 
 ```bash
 python -m src.streaming.run_simulator
 ```
 
-Continuously sends transactions from the sample dataset to the API at ~10/sec.
-Each prediction is logged to SQLite so the dashboard has data to display.
-Configure with environment variables:
+Simulator environment variables:
 
 | Variable | Default | Description |
 |---|---|---|
@@ -111,13 +120,7 @@ Configure with environment variables:
 | `STREAM_RATE` | `10` | Transactions per second |
 | `DATA_PATH` | `data/sample/sample_transactions.csv` | Source data |
 
-**Terminal 3 — Monitoring dashboard:**
-
-```bash
-streamlit run src/dashboard/app.py
-```
-
-Opens at [http://localhost:8501](http://localhost:8501) with six pages:
+The dashboard has six pages:
 
 | Page | What it shows |
 |---|---|
@@ -281,7 +284,7 @@ fraud-detection-system/
 │   │   ├── ab_router.py    #   A/B traffic routing
 │   │   └── run_simulator.py#   Container entry point
 │   ├── dashboard/          # Streamlit monitoring UI
-│   │   ├── app.py          #   Dashboard entry point
+│   │   ├── app.py          #   Dashboard entry point + simulator controls
 │   │   ├── data.py         #   Sync SQLite data access
 │   │   └── _pages/         #   Dashboard pages (6 views)
 │   └── utils/              # Shared utilities
