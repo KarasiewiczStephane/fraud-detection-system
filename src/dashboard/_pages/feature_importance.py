@@ -9,6 +9,66 @@ import plotly.express as px
 import streamlit as st
 
 
+_FEATURE_COLS = [f"V{i}" for i in range(1, 29)] + ["Time", "Amount"]
+
+
+@st.cache_resource
+def _load_model_importance():
+    """Load the model and compute global feature importance."""
+    import pandas as pd
+
+    from src.utils.config import get_config
+    from src.models.registry import ModelRegistry
+
+    config = get_config()
+    registry_path = Path(config.get("model", "registry_path", default="models"))
+    registry = ModelRegistry(registry_path)
+    model_name = config.get("model", "default_model", default="xgboost")
+
+    model = None
+    if registry.list_models():
+        try:
+            model, _ = registry.load(model_name)
+        except FileNotFoundError:
+            pass
+
+    if model is None:
+        from sklearn.ensemble import RandomForestClassifier
+
+        csv_path = Path("data/sample/sample_transactions.csv")
+        df = pd.read_csv(csv_path)
+        X = df[_FEATURE_COLS]
+        y = df["Class"]
+        model = RandomForestClassifier(
+            n_estimators=50, max_depth=8, class_weight="balanced", random_state=42
+        )
+        model.fit(X, y)
+
+    # Use built-in feature_importances_ if available (tree models)
+    if hasattr(model, "feature_importances_"):
+        importance = dict(zip(_FEATURE_COLS, model.feature_importances_.tolist()))
+    else:
+        importance = None
+
+    # Also try SHAP on sample data
+    shap_importance = None
+    try:
+        csv_path = Path("data/sample/sample_transactions.csv")
+        df = pd.read_csv(csv_path)
+        X = df[_FEATURE_COLS].values[:200]  # subsample for speed
+        from src.models.explainer import SHAPExplainer
+
+        model_type = (
+            "random_forest" if "RandomForest" in type(model).__name__ else "xgboost"
+        )
+        explainer = SHAPExplainer(model, model_type=model_type)
+        shap_importance = explainer.global_importance(X, _FEATURE_COLS, top_n=30)
+    except Exception:
+        pass
+
+    return importance, shap_importance
+
+
 def render(conn: sqlite3.Connection) -> None:
     st.title("Feature Importance")
 
@@ -20,15 +80,49 @@ def render(conn: sqlite3.Connection) -> None:
     if beeswarm.exists():
         st.subheader("SHAP Beeswarm Summary")
         st.image(str(beeswarm), use_container_width=True)
-    else:
-        st.info(
-            "No beeswarm plot found. Run the explainability pipeline to "
-            "generate SHAP plots in the `reports/` directory."
-        )
 
     if bar_plot.exists():
         st.subheader("Feature Importance (Bar)")
         st.image(str(bar_plot), use_container_width=True)
+
+    # Dynamic importance from model
+    if not beeswarm.exists() and not bar_plot.exists():
+        importance, shap_importance = _load_model_importance()
+
+        if shap_importance:
+            import pandas as pd
+
+            st.subheader("Global Feature Importance (SHAP)")
+            df_shap = pd.DataFrame(
+                list(shap_importance.items()),
+                columns=["Feature", "Mean |SHAP Value|"],
+            ).sort_values("Mean |SHAP Value|", ascending=True)
+            fig = px.bar(
+                df_shap,
+                x="Mean |SHAP Value|",
+                y="Feature",
+                orientation="h",
+                title="Mean |SHAP Value| (top features)",
+            )
+            fig.update_layout(height=600)
+            st.plotly_chart(fig, use_container_width=True)
+        elif importance:
+            import pandas as pd
+
+            st.subheader("Model Feature Importance")
+            df_imp = pd.DataFrame(
+                list(importance.items()),
+                columns=["Feature", "Importance"],
+            ).sort_values("Importance", ascending=True)
+            fig = px.bar(
+                df_imp.tail(15),
+                x="Importance",
+                y="Feature",
+                orientation="h",
+                title="Top 15 Features by Importance",
+            )
+            fig.update_layout(height=500)
+            st.plotly_chart(fig, use_container_width=True)
 
     # Interactive feature selector from stored SHAP values
     st.divider()
