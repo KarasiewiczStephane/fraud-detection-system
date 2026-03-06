@@ -1,4 +1,4 @@
-.PHONY: install test lint clean run docker docker-up docker-down docker-logs
+.PHONY: install test lint clean run dashboard docker docker-up docker-down docker-logs
 
 install:
 	pip install -r requirements.txt
@@ -16,6 +16,9 @@ clean:
 
 run:
 	uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+
+dashboard:
+	streamlit run src/dashboard/app.py
 
 docker:
 	docker build -t fraud-detection-api .

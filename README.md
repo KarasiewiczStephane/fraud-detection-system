@@ -61,44 +61,48 @@ graph LR
     end
 ```
 
-For a detailed breakdown see [docs/architecture.md](docs/architecture.md).
+<!-- Architecture details are described inline in this README. -->
 
 ## Quick Start
 
-### Installation
+### 1. Install
 
 ```bash
-# Clone
 git clone git@github.com:KarasiewiczStephane/fraud-detection-system.git
 cd fraud-detection-system
-
-# Set up Python with pyenv
-pyenv install 3.11
-pyenv local 3.11
-
-# Install dependencies
-pip install -r requirements.txt
+python -m venv .venv && source .venv/bin/activate
+make install          # pip install -r requirements.txt
 ```
 
-### Running the Full System
+Requires **Python 3.11+**. A 1 000-row sample dataset ships in
+`data/sample/sample_transactions.csv`, so no separate download step is needed.
 
-On first start the API auto-trains a RandomForest on the sample dataset so
-everything works out of the box — no manual training step required.
+> **Full Kaggle dataset (optional):** to download the complete 284 807-row
+> dataset, use the `DatasetDownloader` class in `src/data/downloader.py`.
+> It tries `kagglehub` first, then falls back to a direct URL:
+>
+> ```python
+> from src.data.downloader import DatasetDownloader
+> DatasetDownloader().download("data/raw")
+> ```
 
-**Terminal 1 — API server:**
+### 2. Start the API
 
 ```bash
-uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+make run              # uvicorn src.api.app:app --host 0.0.0.0 --port 8000
 ```
 
-The API starts at [http://localhost:8000](http://localhost:8000). It loads (or
-trains) a model, initialises the SQLite database, sets up the SHAP explainer,
-and enables A/B testing.
+The API starts at [http://localhost:8000](http://localhost:8000). On first
+launch it auto-trains a RandomForest on the sample dataset — no manual
+training step required. It also initialises the SQLite database, sets up the
+SHAP explainer, and enables A/B testing.
 
-**Terminal 2 — Monitoring dashboard:**
+### 3. Launch the Dashboard
+
+In a second terminal (with the venv activated):
 
 ```bash
-streamlit run src/dashboard/app.py
+make dashboard        # streamlit run src/dashboard/app.py
 ```
 
 Opens at [http://localhost:8501](http://localhost:8501). Use the **Simulator**
@@ -150,7 +154,7 @@ make docker-down
 ### Tests and Linting
 
 ```bash
-make test          # Run all 623 tests
+make test          # Run tests with coverage
 make lint          # Ruff check + format
 pre-commit run -a  # Lint + format + tests
 ```
@@ -238,15 +242,11 @@ curl -X POST http://localhost:8000/api/v1/predict/batch \
 curl http://localhost:8000/api/v1/ab-test/results
 ```
 
-### Run the Demo Script
+### Interactive API Docs
 
-A ready-made script exercises all endpoints:
-
-```bash
-bash scripts/demo_api.sh
-```
-
-For full API documentation see [docs/api_reference.md](docs/api_reference.md).
+FastAPI serves auto-generated docs at
+[http://localhost:8000/docs](http://localhost:8000/docs) (Swagger UI) and
+[http://localhost:8000/redoc](http://localhost:8000/redoc) (ReDoc).
 
 ## Configuration
 
@@ -291,16 +291,14 @@ fraud-detection-system/
 │       ├── config.py       #   YAML config with env overrides
 │       ├── logger.py       #   JSON structured logging
 │       └── database.py     #   Async SQLite manager
-├── tests/                  # 623 tests (pytest)
+├── tests/                  # pytest test suite (600+ tests)
 ├── configs/                # YAML configuration files
 ├── data/sample/            # 1000-row sample dataset for CI
-├── docs/                   # Architecture and API docs
-├── scripts/                # Demo and utility scripts
 ├── Dockerfile              # API container (multi-stage)
 ├── Dockerfile.dashboard    # Dashboard container
 ├── Dockerfile.simulator    # Simulator container
 ├── docker-compose.yml      # Multi-service orchestration
-├── Makefile                # Build/run shortcuts
+├── Makefile                # Build/run/dashboard shortcuts
 ├── requirements.txt        # Python dependencies
 └── .github/workflows/ci.yml # CI/CD pipeline
 ```
