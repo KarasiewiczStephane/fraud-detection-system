@@ -1,9 +1,9 @@
 # Fraud Detection System
 
+> End-to-end ML pipeline for credit card fraud detection — from data ingestion to real-time API serving with explainability, A/B testing, and monitoring dashboard.
+
 ![CI](https://github.com/KarasiewiczStephane/fraud-detection-system/actions/workflows/ci.yml/badge.svg?branch=master)
 ![Coverage](https://codecov.io/gh/KarasiewiczStephane/fraud-detection-system/branch/master/graph/badge.svg)
-
-> Part of my Data Science Portfolio — [Skaraz Data](https://github.com/KarasiewiczStephane)
 
 ## Overview
 
@@ -315,6 +315,10 @@ fraud-detection-system/
 | Database | SQLite (aiosqlite for API, sqlite3 for dashboard) |
 | Containerisation | Docker, Docker Compose |
 | CI/CD | GitHub Actions, Ruff, pytest, Codecov |
+
+## Author
+
+**Stéphane Karasiewicz** — [skarazdata.com](https://skarazdata.com) | [LinkedIn](https://www.linkedin.com/in/stephane-karasiewicz/)
 
 ## License
 
